@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://damru-app.com/sitemap.xml
+
+# Directories to avoid
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+
+# Allow all pages for SEO
+Allow: /chats
+Allow: /calls
+Allow: /contacts
+Allow: /settings
+
+# Crawl delay
+Crawl-delay: 1
