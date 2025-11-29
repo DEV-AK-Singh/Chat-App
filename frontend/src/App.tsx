@@ -140,7 +140,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white shadow-lg md:rounded-xl md:my-4 md:h-[90vh] overflow-hidden border border-gray-200">
+    <div className="w-full max-w-md mx-auto bg-white shadow-lg md:rounded-xl overflow-hidden">
       {renderScreen()}
     </div>
   );
