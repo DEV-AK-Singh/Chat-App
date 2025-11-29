@@ -11,6 +11,7 @@ import type { UserProfile, Conversation, Contact } from "./types";
 import { getConversationByContactId } from "./data/mockData";
 import usePWAInstall from "./hooks/usePWAInstall";
 import InstallPrompt from "./components/pwa/InstallPrompt";
+import { Download } from "lucide-react";
 
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<string>("splash");
@@ -118,12 +119,51 @@ const App: React.FC = () => {
   const renderScreen = (): React.ReactNode => {
     switch (currentScreen) {
       case "splash":
-        return <SplashScreen onComplete={handleSplashComplete} />;
+        return (
+          <>
+            <SplashScreen onComplete={handleSplashComplete} />
+          </>
+        );
       case "otp":
-        return <OTPScreen onVerified={handleOTPVerified} />;
+        return (
+          <>
+            <OTPScreen onVerified={handleOTPVerified} />
+            {/* Floating install button */}
+            {canInstall && !showPrompt && !isInstalled && isMobile && (
+              <button
+                onClick={handleInstall}
+                className="fixed bottom-6 right-6 bg-blue-600 px-6 py-4 text-white rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-40"
+                title="Install App"
+              >
+                <div className="flex items-center gap-2">
+                  <Download size={24} />
+                  <span className="text-sm">Install App</span>
+                </div>
+              </button>
+            )}
+          </>
+        );
       case "profile":
         return (
-          <ProfileSetup phone="9876543210" onComplete={handleProfileComplete} />
+          <>
+            <ProfileSetup
+              phone="9876543210"
+              onComplete={handleProfileComplete}
+            />
+            {/* Floating install button */}
+            {canInstall && !showPrompt && !isInstalled && isMobile && (
+              <button
+                onClick={handleInstall}
+                className="fixed bottom-6 right-6 bg-blue-600 px-6 py-4 text-white rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-40"
+                title="Install App"
+              >
+                <div className="flex items-center gap-2">
+                  <Download size={24} />
+                  <span className="text-sm">Install App</span>
+                </div>
+              </button>
+            )}
+          </>
         );
       case "chats":
         return (
@@ -185,29 +225,6 @@ const App: React.FC = () => {
           onDismiss={handleDismiss}
           isInstallable={isInstallable}
         />
-      )}
-
-      {/* Floating install button */}
-      {canInstall && !showPrompt && !isInstalled && isMobile && (
-        <button
-          onClick={handleInstall}
-          className="fixed bottom-6 right-6 bg-black text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-40"
-          title="Install App"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
-        </button>
       )}
     </div>
   );
