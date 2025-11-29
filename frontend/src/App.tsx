@@ -122,12 +122,28 @@ const App: React.FC = () => {
         return (
           <>
             <SplashScreen onComplete={handleSplashComplete} />
+            {/* Install Prompt */}
+            {showPrompt && isMobile && (
+              <InstallPrompt
+                onInstall={handleInstall}
+                onDismiss={handleDismiss}
+                isInstallable={isInstallable}
+              />
+            )}
           </>
         );
       case "otp":
         return (
           <>
             <OTPScreen onVerified={handleOTPVerified} />
+            {/* Install Prompt */}
+            {showPrompt && isMobile && (
+              <InstallPrompt
+                onInstall={handleInstall}
+                onDismiss={handleDismiss}
+                isInstallable={isInstallable}
+              />
+            )}
             {/* Floating install button */}
             {canInstall && !showPrompt && !isInstalled && isMobile && (
               <button
@@ -150,6 +166,14 @@ const App: React.FC = () => {
               phone="9876543210"
               onComplete={handleProfileComplete}
             />
+            {/* Install Prompt */}
+            {showPrompt && isMobile && (
+              <InstallPrompt
+                onInstall={handleInstall}
+                onDismiss={handleDismiss}
+                isInstallable={isInstallable}
+              />
+            )}
             {/* Floating install button */}
             {canInstall && !showPrompt && !isInstalled && isMobile && (
               <button
@@ -217,15 +241,6 @@ const App: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto bg-white shadow-lg md:rounded-xl overflow-hidden">
       {renderScreen()}
-
-      {/* Install Prompt */}
-      {showPrompt && isMobile && (
-        <InstallPrompt
-          onInstall={handleInstall}
-          onDismiss={handleDismiss}
-          isInstallable={isInstallable}
-        />
-      )}
     </div>
   );
 };
