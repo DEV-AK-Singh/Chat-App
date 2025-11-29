@@ -1,38 +1,66 @@
-import React, { useState } from 'react';
-import SplashScreen from './pages/SplashScreen';
-import OTPScreen from './pages/OTPScreen';
-import ProfileSetup from './pages/ProfileSetup';
-import ChatListPage from './pages/ChatListPage';
-import ChatInterface from './pages/ChatInterface';
-import ContactsPage from './pages/ContactsPage';
-import CallsPage from './pages/CallsPage';
-import SettingsPage from './pages/SettingsPage';
-import type { UserProfile, Conversation, Contact } from './types';
-import { getConversationByContactId } from './data/mockData';
+import React, { useEffect, useState } from "react";
+import SplashScreen from "./pages/SplashScreen";
+import OTPScreen from "./pages/OTPScreen";
+import ProfileSetup from "./pages/ProfileSetup";
+import ChatListPage from "./pages/ChatListPage";
+import ChatInterface from "./pages/ChatInterface";
+import ContactsPage from "./pages/ContactsPage";
+import CallsPage from "./pages/CallsPage";
+import SettingsPage from "./pages/SettingsPage";
+import type { UserProfile, Conversation, Contact } from "./types";
+import { getConversationByContactId } from "./data/mockData";
+import usePWAInstall from "./hooks/usePWAInstall";
+import InstallPrompt from "./components/pwa/InstallPrompt";
 
 const App: React.FC = () => {
-  const [currentScreen, setCurrentScreen] = useState<string>('splash');
+  const [currentScreen, setCurrentScreen] = useState<string>("splash");
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const { isInstallable, isInstalled, installPWA, canInstall } =
+    usePWAInstall();
+  const [showPrompt, setShowPrompt] = useState<boolean>(false);
+
+  useEffect(() => {
+    const wasDismissed = localStorage.getItem("pwaPromptDismissed");
+    if (isInstallable && !isInstalled && !wasDismissed) {
+      setShowPrompt(true);
+    }
+  }, [isInstallable, isInstalled]);
+
+  const handleInstall = async (): Promise<boolean> => {
+    return await installPWA();
+  };
+
+  const handleDismiss = (): void => {
+    setShowPrompt(false);
+  };
+
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
 
   const handleSplashComplete = (): void => {
-    setCurrentScreen('otp');
+    setCurrentScreen("otp");
   };
 
   const handleOTPVerified = (phone: string): void => {
-    setCurrentScreen('profile');
+    setCurrentScreen("profile");
   };
 
   const handleProfileComplete = (profile: UserProfile): void => {
     setUserProfile(profile);
-    setCurrentScreen('chats');
+    setCurrentScreen("chats");
   };
 
-  const handleSelectChat = (conversation: Conversation, contact: Contact): void => {
+  const handleSelectChat = (
+    conversation: Conversation,
+    contact: Contact
+  ): void => {
     setSelectedChat(conversation);
     setSelectedContact(contact);
-    setCurrentScreen('chat');
+    setCurrentScreen("chat");
   };
 
   const handleStartChat = (contact: Contact): void => {
@@ -42,23 +70,23 @@ const App: React.FC = () => {
       conversation = {
         id: Date.now(),
         contactId: contact.id,
-        lastMessage: 'Start a conversation...',
-        timestamp: 'Now',
+        lastMessage: "Start a conversation...",
+        timestamp: "Now",
         unread: 0,
         encrypted: true,
         pinned: false,
-        muted: false
+        muted: false,
       };
     }
     setSelectedChat(conversation);
     setSelectedContact(contact);
-    setCurrentScreen('chat');
+    setCurrentScreen("chat");
   };
 
-  const handleStartCall = (contact: Contact, type: 'voice' | 'video'): void => {
+  const handleStartCall = (contact: Contact, type: "voice" | "video"): void => {
     setSelectedContact(contact);
     // For now, navigate to calls page
-    setCurrentScreen('calls');
+    setCurrentScreen("calls");
   };
 
   const handleUpdateProfile = (profile: UserProfile): void => {
@@ -70,8 +98,13 @@ const App: React.FC = () => {
   };
 
   const handleBack = (): void => {
-    if (currentScreen === 'chat' || currentScreen === 'contacts' || currentScreen === 'calls' || currentScreen === 'settings') {
-      setCurrentScreen('chats');
+    if (
+      currentScreen === "chat" ||
+      currentScreen === "contacts" ||
+      currentScreen === "calls" ||
+      currentScreen === "settings"
+    ) {
+      setCurrentScreen("chats");
     }
   };
 
@@ -79,18 +112,20 @@ const App: React.FC = () => {
     setUserProfile(null);
     setSelectedChat(null);
     setSelectedContact(null);
-    setCurrentScreen('splash');
+    setCurrentScreen("splash");
   };
 
   const renderScreen = (): React.ReactNode => {
     switch (currentScreen) {
-      case 'splash':
+      case "splash":
         return <SplashScreen onComplete={handleSplashComplete} />;
-      case 'otp':
+      case "otp":
         return <OTPScreen onVerified={handleOTPVerified} />;
-      case 'profile':
-        return <ProfileSetup phone="9876543210" onComplete={handleProfileComplete} />;
-      case 'chats':
+      case "profile":
+        return (
+          <ProfileSetup phone="9876543210" onComplete={handleProfileComplete} />
+        );
+      case "chats":
         return (
           <ChatListPage
             profile={userProfile}
@@ -98,7 +133,7 @@ const App: React.FC = () => {
             onNavigate={handleNavigate}
           />
         );
-      case 'chat':
+      case "chat":
         return (
           <ChatInterface
             conversation={selectedChat}
@@ -107,28 +142,28 @@ const App: React.FC = () => {
             onNavigate={handleNavigate}
           />
         );
-      case 'contacts':
+      case "contacts":
         return (
-          <ContactsPage 
-            onBack={handleBack} 
+          <ContactsPage
+            onBack={handleBack}
             onNavigate={handleNavigate}
             onStartChat={handleStartChat}
             onStartCall={handleStartCall}
           />
         );
-      case 'calls':
+      case "calls":
         return (
-          <CallsPage 
-            onBack={handleBack} 
+          <CallsPage
+            onBack={handleBack}
             onNavigate={handleNavigate}
             onStartCall={handleStartCall}
           />
         );
-      case 'settings':
+      case "settings":
         return (
-          <SettingsPage 
-            profile={userProfile} 
-            onBack={handleBack} 
+          <SettingsPage
+            profile={userProfile}
+            onBack={handleBack}
             onLogout={handleLogout}
             onUpdateProfile={handleUpdateProfile}
             onNavigate={handleNavigate}
@@ -142,6 +177,38 @@ const App: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto bg-white shadow-lg md:rounded-xl overflow-hidden">
       {renderScreen()}
+
+      {/* Install Prompt */}
+      {showPrompt && isMobile && (
+        <InstallPrompt
+          onInstall={handleInstall}
+          onDismiss={handleDismiss}
+          isInstallable={isInstallable}
+        />
+      )}
+
+      {/* Floating install button */}
+      {canInstall && !showPrompt && !isInstalled && isMobile && (
+        <button
+          onClick={handleInstall}
+          className="fixed bottom-6 right-6 bg-black text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-40"
+          title="Install App"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 };
